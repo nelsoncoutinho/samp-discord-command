@@ -42,7 +42,7 @@ You can see on samp-discord-command wiki for more information about this include
 Example script:
 ```pawn
 #include <a_samp>
-#include <scanf2>
+#include <sscanf2>
 #include <discord-connector>
 
 // configuration
