@@ -1,0 +1,16 @@
+{
+	"user": "Se8870",
+	"repo": "samp-discord-command",
+	"entry": "gamemodes/example.pwn",
+	"output": "gamemodes/example.amx",
+	"dependencies": [
+		"sampctl/samp-stdlib",
+		"maddinat0r/samp-discord-connector:v0.3.2",
+		"maddinat0r/sscanf:v2.8.2"
+	],
+	"runtime": {
+		"extra": {
+			"discord_bot_token": "your_discord_token"
+		}
+	}
+}
