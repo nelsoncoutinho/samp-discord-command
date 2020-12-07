@@ -17,27 +17,27 @@
 #define dccommand_included
 
 #if !defined DC_BOT_NAME
-	#define DC_BOT_NAME                    "Your Bot Name"
+	#error You must add `#define DC_BOT_NAME "Your Bot Name"` in your script!
 #endif
 
 #if !defined DC_PREFIX
-	#define DC_PREFIX                    	"!"
+	#define DC_PREFIX "!"
 #endif 
 
-#if !defined DC_AUTHOR_ONLY
+#if defined DC_AUTHOR_ONLY
     #if !defined DC_AUTHOR
-        #define DC_AUTHOR                   "Your name"
+        #error You must add `#define DC_AUTHOR "Your name"` in your script if you're using DC_AUTHOR_ONLY
     #endif
 #endif
 
-#if !defined DC_SPECIFIC_CHANNEL
+#if defined DC_SPECIFIC_CHANNEL
     #if !defined DC_SPECIFIC_CHANNEL_ID
-        #define DC_SPECIFIC_CHANNEL_ID      "123456789"
+        #error You must add `#define DC_SPECIFIC_CHANNEL_ID "channel_id_here"` in your scriptif you're using DC_SPECIFIC_CHANNEL
     #endif
 #endif
 
 #if !defined DC_PREFIX_LENGTH && defined DC_PREFIX
-#define DC_PREFIX_LENGTH                    1 //must change this if you change prefix
+	#define DC_PREFIX_LENGTH 1 //must change this if you change prefix
 #endif
 
 #if !defined isnull
@@ -58,7 +58,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
     new 
         DCC_Channel:channel, DCC_User:author, 
 		user_name[32 + 1], bool:isBot, 
-		messageContext[128];
+		messageContext[256];
 
     // get user id and channel id from message
     DCC_GetMessageAuthor(message, author); 
@@ -91,11 +91,8 @@ public DCC_OnMessageCreate(DCC_Message:message) {
     if (isBot) 
         return 1;
 
-    new dmsg[10][128];
-    split(dmsg, messageContext, " ", 2);
-
-    new command[10], args[128];
-    sscanf(messageContext, "s[10]s[128]", command, args);
+    new command[10], args[134];
+    sscanf(messageContext, "s[10]s[134]", command, args);
 
     if(strfind(command, DC_PREFIX, true) != -1)
     {
@@ -103,7 +100,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
         strdel(command, 0, DC_PREFIX_LENGTH);
         format(funcdc, sizeof(funcdc), "dccmd_%s", command);
 
-        (isnull(dmsg[1])) &&
+        (isnull(args)) &&
             CallLocalFunction(#OnDiscordCommandPerformed, "sii", messageContext, CallLocalFunction(funcdc, "isi", _:author, "\1", _:message), _:message) ||
             CallLocalFunction(#OnDiscordCommandPerformed, "sii", messageContext, CallLocalFunction(funcdc, "isi", _:author, args, _:message), _:message);
     }
@@ -115,7 +112,7 @@ stock SendDiscordMessage(DCC_Channel:channel, const text[], {Float, _}:...)
 {
 	static
 	    args,
-	    str[144];
+	    str[512];
 
 	/*
      *  Custom function that uses #emit to format variables into a string.
@@ -138,7 +135,7 @@ stock SendDiscordMessage(DCC_Channel:channel, const text[], {Float, _}:...)
 			#emit PUSH.pri
 		}
 		#emit PUSH.S text
-		#emit PUSH.C 144
+		#emit PUSH.C 512
 		#emit PUSH.C str
 		#emit LOAD.S.pri 8
 		#emit ADD.C 4
@@ -154,32 +151,9 @@ stock SendDiscordMessage(DCC_Channel:channel, const text[], {Float, _}:...)
 	return 1;
 }
 
-//By westie
-stock split(aExplode[][], const sSource[], const sDelimiter[] = " ", iVertices = sizeof aExplode, iLength = sizeof aExplode[])
-{
-	new
-		iNode,
-		iPointer,
-		iPrevious = -1,
-		iDelimiter = strlen(sDelimiter);
-
-	while(iNode < iVertices)
-	{
-		iPointer = strfind(sSource, sDelimiter, false, iPointer);
-
-		if(iPointer == -1)
-		{
-			strmid(aExplode[iNode], sSource, iPrevious, strlen(sSource), iLength);
-			break;
-		}
-		else
-		{
-			strmid(aExplode[iNode], sSource, iPrevious, iPointer, iLength);
-		}
-
-		iPrevious = (iPointer += iDelimiter);
-		++iNode;
+#if !defined OnDiscordCommandPerformed
+	public OnDiscordCommandPerformed(const params[], success, DCC_Message:message) {
+		// This is just uwu, don't add anything here!
+		return 1;
 	}
-
-	return iPrevious;
-}
+#endif
