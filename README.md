@@ -29,14 +29,6 @@ Edit your pawn.json and add these lines:
 }
 ```
 
-And finally, add these code to preventing your server from crashing
-
-```pawn
-public OnDiscordCommandPerformed(const params[], success, DCC_Message:message) {
-    return 1;
-}
-```
-
 ## Usage
 
 You can see on samp-discord-command wiki for more information about this include.
