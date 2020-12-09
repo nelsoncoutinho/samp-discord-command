@@ -10,7 +10,7 @@ Now, you can make a command any channel you want, or any user.
 Simply install to your project:
 
 ```bash
-sampctl package install Se8870/samp-discord-command
+sampctl package install Eiikirin/samp-discord-command
 ```
 
 Include in your code and begin using the library:
