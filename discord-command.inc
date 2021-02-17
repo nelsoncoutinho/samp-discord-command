@@ -79,7 +79,7 @@ static DCC_IsBot(DCC_User:user) {
 	return ret;
 }
 
-// By Emmet_ - Not work with JIT compiler (i guess :\)
+// Originally by Emmet_
 stock SendDiscordMessage(DCC_Channel:channel, const text[], {Float, _}:...)
 {
 	static
