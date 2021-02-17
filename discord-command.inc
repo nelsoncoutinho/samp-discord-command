@@ -25,6 +25,14 @@
 #define DISCORD_CMD:%0(%1) DC_CMD:%0(%1)  
 #define DCC_Command(%0,%1,%2,%3) DC_CMD:%0(%1,%2,%3)
 
+#if defined DCC_OnCommandReceived
+	forward DCC_OnCommandReceived(DCC_User:author, DCC_Channel:channel, cmdtext[], success);
+#endif
+
+#if defined DCC_OnCommandPerformed
+	forward DCC_OnCommandPerformed(DCC_User:author, DCC_Channel:channel, cmdtext[], success);
+#endif
+
 public DCC_OnMessageCreate(DCC_Message:message) {
 	new
 		msg[DCC_MAX_MESSAGE];
@@ -53,7 +61,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 
 	#if defined DCC_OnCommandReceived
 		new ret = (funcidx(func) != -1) ? 1 : 0;
-		if (!DCC_OnCommandReceived(author, channel, msg, ret)) return 1;
+		if (!DCC_OnCommandReceived(author, channel, func[4], ret)) return 1;
 	#endif
 
 	if (DCC_UserIsBot(author)) {
@@ -62,14 +70,14 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 		if(msg[iPos])
 		{
 			#if defined DCC_OnCommandPerformed
-				return DCC_OnCommandPerformed(author, channel, msg, CallLocalFunction(func, "iis", _:author, _:channel, msg[iPos]));
+				return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "iis", _:author, _:channel, msg[iPos]));
 			#else
 				return CallLocalFunction(func, "iis", _:author, _:channel, msg[iPos]);
 			#endif 
 		}
 		else {
 			#if defined DCC_OnCommandPerformed
-				return DCC_OnCommandPerformed(author, channel, msg, CallLocalFunction(func, "iis", _:author, _:channel, "\1"));
+				return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "iis", _:author, _:channel, "\1"));
 			#else
 				return CallLocalFunction(func, "iis", _:author, _:channel, "\1");
 			#endif 
