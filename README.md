@@ -1,9 +1,8 @@
 # samp-discord-command
 
-[![sampctl](https://img.shields.io/badge/sampctl-samp--discord--command-2f2f2f.svg?style=for-the-badge)](https://github.com/Se8870/samp-discord-command)
+[![sampctl](https://img.shields.io/badge/sampctl-samp--discord--command-2f2f2f.svg?style=for-the-badge)](https://github.com/Eiikirin/samp-discord-command)
 
-Inspired and revamped from old source code [Inn0cent](https://forum.sa-mp.com/showthread.php?t=646843) to brand new one.
-Now, you can make a command any channel you want, or any user.
+Inspired from old source code [Inn0cent](https://forum.sa-mp.com/showthread.php?t=646843) to brand new one. Now, you can make a command any channel you want, or any user.
 
 ## Installation
 
@@ -31,31 +30,15 @@ Edit your pawn.json and add these lines:
 
 ## Usage
 
-You can see on samp-discord-command wiki for more information about this include.
-
 Example script:
 ```pawn
 #include <a_samp>
-#include <sscanf2>
 #include <discord-connector>
-
-// configuration
-#define DC_BOT_NAME         "Your bot name"
-#define DC_PREFIX           "!"
-#define DC_PREFIX_LENGTH    1
-
 #include <discord-command>
 
-DC_CMD:help(DCC_User:userid, params[], DCC_Message:message) {
-    new 
-        DCC_Channel:channelid;
-    
-    DCC_GetMessageChannel(message, channelid);
+DC_CMD:help(DCC_User:userid, DCC_Channel:channel, params[]) 
+{
     SendDiscordMessage(channelid, "Hello, this is my bot!");
-    return 1;
-}
-
-public OnDiscordCommandPerformed(const params[], success, DCC_Message:message) {
     return 1;
 }
 ```
@@ -71,7 +54,9 @@ To testing this script, first you need to change few settings such as:
 * your_channel_id from examples.pwn -> to your actual channel id
 * your_discord_token from pawn.json -> to your actual discord token (don't share it to ANYONE!)
 
+
 then, simply run this command:
+
 ```bash
 sampctl package run
 ```
