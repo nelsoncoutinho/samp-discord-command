@@ -20,6 +20,11 @@
 	#define DCC_MAX_MESSAGE (144)
 #endif 
 
+#define DC_CMD:%0(%1) forward dcc_%0(%1); public dcc_%0(%1)
+#define DCC_COMMAND:%0(%1) DC_CMD:%0(%1)
+#define DISCORD_CMD:%0(%1) DC_CMD:%0(%1)  
+#define DCC_Command(%0,%1,%2,%3) DC_CMD:%0(%1,%2,%3)
+
 public DCC_OnMessageCreate(DCC_Message:message) {
 	new
 		msg[DCC_MAX_MESSAGE];
@@ -35,14 +40,14 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 	DCC_GetMessageChannel(message, channel);
 
 	new 
-		iPos, tmp, func[33] = "dcc_";
+		iPos = 1, tmp, func[33] = "dcc_";
 
 	while((tmp = msg[iPos]) > ' ') {
 		if ('A' <= tmp <= 'Z') {
-			func[iPos++ + 4] = tmp | 0x20;
+			func[iPos++ + 3] = tmp | 0x20;
 		}
 		else {
-			func[iPos++ + 4] = tmp;
+			func[iPos++ + 3] = tmp;
 		}
 	}
 
