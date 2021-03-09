@@ -45,7 +45,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 
 	DCC_GetMessageContent(message, msg);
 
-	if (strfind(msg, DCC_PREFIX, true) && strfind(msg, DCC_GlobalPrefix, true) == -1) return 0;
+	if (strfind(msg, DCC_GlobalPrefix, true) == -1) return 0;
 
 	new 
 		DCC_User:author, DCC_Channel:channel;
