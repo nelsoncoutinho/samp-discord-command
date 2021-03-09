@@ -6,6 +6,8 @@
 		- Yashas for processor logic
 		- J0sh and Maddinat0r for discord-connector
 
+	https://saweria.co/Eiikirin
+
 */
 
 #if !defined dcconnector_included
