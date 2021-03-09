@@ -14,10 +14,13 @@
 
 #if !defined DCC_PREFIX
 	#define DCC_PREFIX "!"
+	#if !defined DCC_PREFIX_LENGTH
+		#define DCC_PREFIX_LENGTH 5
+	#endif
 #endif
 
 #if !defined DCC_MAX_MESSAGE
-	#define DCC_MAX_MESSAGE (144)
+	#define DCC_MAX_MESSAGE 144
 #endif 
 
 #define DC_CMD:%0(%1) forward dcc_%0(%1); public dcc_%0(%1)
@@ -26,12 +29,15 @@
 #define DCC_Command(%0,%1,%2,%3) DC_CMD:%0(%1,%2,%3)
 
 #if defined DCC_OnCommandReceived
-	forward DCC_OnCommandReceived(DCC_User:author, DCC_Channel:channel, cmdtext[], success);
+	forward DCC_OnCommandReceived(DCC_User:author, DCC_Channel:channel, const cmdtext[], success);
 #endif
 
 #if defined DCC_OnCommandPerformed
-	forward DCC_OnCommandPerformed(DCC_User:author, DCC_Channel:channel, cmdtext[], success);
+	forward DCC_OnCommandPerformed(DCC_User:author, DCC_Channel:channel, const cmdtext[], success);
 #endif
+
+static 
+	DCC_GlobalPrefix[DCC_PREFIX_LENGTH];
 
 public DCC_OnMessageCreate(DCC_Message:message) {
 	new
@@ -39,7 +45,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 
 	DCC_GetMessageContent(message, msg);
 
-	if (strfind(msg, DCC_PREFIX, true) == -1) return 0;
+	if (strfind(msg, DCC_PREFIX, true) && strfind(msg, DCC_GlobalPrefix, true) == -1) return 0;
 
 	new 
 		DCC_User:author, DCC_Channel:channel;
@@ -48,7 +54,8 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 	DCC_GetMessageChannel(message, channel);
 
 	new 
-		iPos = 1, tmp, func[33] = "dcc_";
+		iPos = (DCC_GlobalPrefix[0] == EOS) ? strlen(DCC_PREFIX) : strlen(DCC_GlobalPrefix), 
+		tmp, func[33] = "dcc_";
 
 	while((tmp = msg[iPos]) > ' ') {
 		if ('A' <= tmp <= 'Z') {
@@ -64,7 +71,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 		if (!DCC_OnCommandReceived(author, channel, func[4], ret)) return 1;
 	#endif
 
-	if (DCC_UserIsBot(author)) {
+	if (DCC_IsBot(author)) {
 		while (msg[iPos] == ' ') iPos++;
 
 		if(msg[iPos])
@@ -87,7 +94,7 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 }
 
 static DCC_IsBot(DCC_User:user) {
-	new ret;
+	new bool:ret;
 	DCC_IsUserBot(user, ret);
 	return ret;
 }
@@ -136,3 +143,57 @@ stock SendDiscordMessage(DCC_Channel:channel, const text[], {Float, _}:...)
 	}
 	return 1;
 }
+
+stock DCC_ChangePrefix(const prefix[]) {
+	if (strlen(prefix) >= DCC_PREFIX_LENGTH) 
+		return -1;
+
+	format(DCC_GlobalPrefix, sizeof DCC_GlobalPrefix, prefix);
+	return 1;
+}
+
+#if !defined FILTERSCRIPT
+	public OnGameModeInit() {
+		DCC_ChangePrefix(DCC_PREFIX);
+
+		#if defined ___OnGameModeInit
+			___OnGameModeInit();
+		#endif 
+
+		return 1;
+	}
+
+	#if defined _ALS_OnGameModeInit
+		#undef OnGameModeInit
+	#else
+		#define _ALS_OnGameModeInit
+	#endif
+
+	#define OnGameModeInit ___OnGameModeInit
+
+	#if defined ___OnGameModeInit
+		forward ___OnGameModeInit(playerid);
+	#endif
+#else
+	public OnFilterScriptInit() {
+		DCC_ChangePrefix(DCC_PREFIX);
+
+		#if defined ___OnFilterScriptInit
+			___OnFilterScriptInit();
+		#endif 
+
+		return 1;
+	}
+
+	#if defined _ALS_OnFilterScriptInit
+		#undef OnFilterScriptInit
+	#else
+		#define _ALS_OnFilterScriptInit
+	#endif
+
+	#define OnFilterScriptInit ___OnFilterScriptInit
+
+	#if defined ___OnFilterScriptInit
+		forward ___OnFilterScriptInit(playerid);
+	#endif
+#endif
