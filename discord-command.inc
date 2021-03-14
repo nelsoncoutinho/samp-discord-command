@@ -54,7 +54,6 @@ new
 stock DCC_IsBot(DCC_User:user) {
 	new bool:ret;
 	DCC_IsUserBot(user, ret);
-	printf("Bot: %d", ret);
 	return ret;
 }
 
@@ -90,8 +89,6 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 		else func[iPos++ + ___l] = tmp;
     }
 
-
-
 	#if defined DCC_OnCommandReceived
 		if (!DCC_OnCommandReceived(author, channel, func[4], (funcidx(func) != -1 ? 1 : 0))) return 1;
 	#endif
@@ -100,12 +97,8 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 	while (msg[iPos] == ' ') 
 		iPos++;
 
-	printf("Is this even printed?");
-	printf(msg[iPos]);
-
 	if(msg[iPos])
 	{
-		printf("this?");
 		#if defined DCC_OnCommandPerformed
 			return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "isi", _:author, msg[iPos], _:channel));
 		#else
@@ -113,7 +106,6 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 		#endif 
 	}
 	else {
-		printf("or this?"); 
 		#if defined DCC_OnCommandPerformed
 			return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "isi", _:author, "\1", _:channel));
 		#else
