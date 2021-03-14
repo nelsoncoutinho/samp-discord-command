@@ -45,7 +45,7 @@
 		"cookielogging": false,
 		"output": true,
 		"extra": {
-			"discord_bot_token": "ODE5NzE3OTcyNDAxOTc5NDAz.YEqr2g.FaoaYqSIv659TzpvfU5-y2a58wU"
+			"discord_bot_token": "your_bot_token_here"
 		}
 	}
 }

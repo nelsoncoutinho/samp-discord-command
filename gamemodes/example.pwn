@@ -16,7 +16,7 @@ main() {
 }
 
 DiscordSetup() {
-   g_MainChannel = DCC_FindChannelById("808614883897114664");
+   g_MainChannel = DCC_FindChannelById("your_channel_id_here");
 }
 
 DC_CMD:help(DCC_User:author, params[], DCC_Channel:channel) {
