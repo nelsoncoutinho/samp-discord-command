@@ -16,19 +16,25 @@
 
 #if !defined DCC_PREFIX
 	#define DCC_PREFIX "!"
-	#if !defined DCC_PREFIX_LENGTH
-		#define DCC_PREFIX_LENGTH 5
-	#endif
+#endif
+
+#if !defined DCC_PREFIX_LENGTH
+	#define DCC_PREFIX_LENGTH 4
 #endif
 
 #if !defined DCC_MAX_MESSAGE
-	#define DCC_MAX_MESSAGE 144
+	#define DCC_MAX_MESSAGE 255
 #endif 
+
+#if DCC_PREFIX_LENGTH > 4
+	#error Maximum length size is 4, you can't go above that (for now)
+#endif
 
 #define DC_CMD:%0(%1) forward dcc_%0(%1); public dcc_%0(%1)
 #define DCC_COMMAND:%0(%1) DC_CMD:%0(%1)
 #define DISCORD_CMD:%0(%1) DC_CMD:%0(%1)  
 #define DCC_Command(%0,%1,%2,%3) DC_CMD:%0(%1,%2,%3)
+
 
 #if defined DCC_OnCommandReceived
 	forward DCC_OnCommandReceived(DCC_User:author, DCC_Channel:channel, const cmdtext[], success);
@@ -38,8 +44,19 @@
 	forward DCC_OnCommandPerformed(DCC_User:author, DCC_Channel:channel, const cmdtext[], success);
 #endif
 
-static 
-	DCC_GlobalPrefix[DCC_PREFIX_LENGTH];
+#if !defined isnull
+        #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+#endif
+
+new 
+	DCC_GlobalPrefix[DCC_PREFIX_LENGTH + 1];
+
+stock DCC_IsBot(DCC_User:user) {
+	new bool:ret;
+	DCC_IsUserBot(user, ret);
+	printf("Bot: %d", ret);
+	return ret;
+}
 
 public DCC_OnMessageCreate(DCC_Message:message) {
 	new
@@ -55,50 +72,54 @@ public DCC_OnMessageCreate(DCC_Message:message) {
 	DCC_GetMessageAuthor(message, author);
 	DCC_GetMessageChannel(message, channel);
 
+	printf(msg);
+
+	if (DCC_IsBot(author)) return 0;
+
 	new 
-		iPos = (DCC_GlobalPrefix[0] == EOS) ? strlen(DCC_PREFIX) : strlen(DCC_GlobalPrefix), 
-		tmp, func[33] = "dcc_";
+		iPos = strlen(DCC_GlobalPrefix),
+        ___l = ___dc@limit(),
+		tmp;
+
+	new 
+		func[DCC_MAX_MESSAGE] = "dcc_";
 
 	while((tmp = msg[iPos]) > ' ') {
-		if ('A' <= tmp <= 'Z') {
-			func[iPos++ + 3] = tmp | 0x20;
-		}
-		else {
-			func[iPos++ + 3] = tmp;
-		}
-	}
+
+		if('A' <= tmp <= 'Z' && iPos) func[iPos++ + ___l] = tmp | 0x20;
+		else func[iPos++ + ___l] = tmp;
+    }
+
+
 
 	#if defined DCC_OnCommandReceived
-		new ret = (funcidx(func) != -1) ? 1 : 0;
-		if (!DCC_OnCommandReceived(author, channel, func[4], ret)) return 1;
+		if (!DCC_OnCommandReceived(author, channel, func[4], (funcidx(func) != -1 ? 1 : 0))) return 1;
 	#endif
 
-	if (DCC_IsBot(author)) {
-		while (msg[iPos] == ' ') iPos++;
 
-		if(msg[iPos])
-		{
-			#if defined DCC_OnCommandPerformed
-				return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "iis", _:author, _:channel, msg[iPos]));
-			#else
-				return CallLocalFunction(func, "iis", _:author, _:channel, msg[iPos]);
-			#endif 
-		}
-		else {
-			#if defined DCC_OnCommandPerformed
-				return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "iis", _:author, _:channel, "\1"));
-			#else
-				return CallLocalFunction(func, "iis", _:author, _:channel, "\1");
-			#endif 
-		}
+	while (msg[iPos] == ' ') 
+		iPos++;
+
+	printf("Is this even printed?");
+	printf(msg[iPos]);
+
+	if(msg[iPos])
+	{
+		printf("this?");
+		#if defined DCC_OnCommandPerformed
+			return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "isi", _:author, msg[iPos], _:channel));
+		#else
+			return CallLocalFunction(func, "isi", _:author, msg[iPos], _:channel);
+		#endif 
 	}
-	return 0;
-}
-
-static DCC_IsBot(DCC_User:user) {
-	new bool:ret;
-	DCC_IsUserBot(user, ret);
-	return ret;
+	else {
+		printf("or this?"); 
+		#if defined DCC_OnCommandPerformed
+			return DCC_OnCommandPerformed(author, channel, func[4], CallLocalFunction(func, "isi", _:author, "\1", _:channel));
+		#else
+			return CallLocalFunction(func, "isi", _:author, "\1", _:channel);
+		#endif
+	}
 }
 
 // Originally by Emmet_
@@ -151,7 +172,27 @@ stock DCC_ChangePrefix(const prefix[]) {
 		return -1;
 
 	format(DCC_GlobalPrefix, sizeof DCC_GlobalPrefix, prefix);
+	printf("%d", strlen(DCC_GlobalPrefix));
 	return 1;
+}
+
+stock DCC_ShowPrefix() {
+	return (DCC_GlobalPrefix);
+}
+
+// please don't change this magic number
+// i know this so stupid, but this is only temp
+// i'll figure it out how to solve this later
+static ___dc@limit() {
+    new limit = strlen(DCC_GlobalPrefix);
+
+    switch (limit) {
+        case 1: return 3;
+        case 2: return 2;
+        case 3: return 2;
+        case 4: return 0;
+    }
+	return -1;
 }
 
 #if !defined FILTERSCRIPT
