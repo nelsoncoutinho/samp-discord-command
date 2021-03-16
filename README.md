@@ -5,6 +5,8 @@
 Inspired and revamped from old source code [Inn0cent](https://forum.sa-mp.com/showthread.php?t=646843) to brand new one.
 Now, you can make a command any channel you want, or any user.
 
+(No Longer developed, please find another include!)
+
 ## Installation
 
 Simply install to your project:
